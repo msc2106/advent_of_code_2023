@@ -14,3 +14,8 @@ pub fn lines_from_file(path: &str) -> Lines<BufReader<File>> {
     )
         .lines()
 }
+
+pub fn string_iterator(path: &str) -> impl Iterator<Item = String> {
+    lines_from_file(path)
+        .filter_map(|l| l.ok())
+}
