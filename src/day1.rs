@@ -2,7 +2,7 @@ use crate::utilities;
 use std::{thread, str::Chars};
 
 pub fn part1() -> String {
-    let mut lines = utilities::lines_from_file("input/1-1.txt");
+    let mut lines = utilities::lines_from_file("input/day1.txt");
     let mut total:u32 = 0;
     while let Some(Ok(line)) = lines.next() {
         // println!("{}", &line);
@@ -26,7 +26,7 @@ fn first_number(chars: impl Iterator<Item = char>) -> Option<u32> {
 }
 
 pub fn part2() -> String {
-    let mut lines = utilities::lines_from_file("input/1-1.txt");
+    let mut lines = utilities::lines_from_file("input/day1.txt");
     let mut total:u32 = 0;
     let mut threads = Vec::new();
     while let Some(Ok(line)) = lines.next() {
