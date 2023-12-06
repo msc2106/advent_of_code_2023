@@ -6,6 +6,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
 fn main() {
     let mut args = env::args();
@@ -22,8 +23,8 @@ fn main() {
             "4-2" => day4::part2("./input/day4.txt"),
             "5-1" => day5::part1("./input/day5.txt"),
             "5-2" => day5::part2("./input/day5.txt"),
-            // "6-1" => day6::part1(),
-            // "6-2" => day6::part2(),
+            "6-1" => day6::part1("./input/day6.txt"),
+            "6-2" => day6::part2("./input/day6.txt"),
             // "7-1" => day7::part1(),
             // "7-2" => day7::part2(),
             // "8-1" => day8::part1(),
