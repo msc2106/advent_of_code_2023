@@ -146,6 +146,7 @@ impl Directions {
     //     steps
     // }
 
+    // I only realized later that the common pattern of 1 iterations, then a cycle in which the target is at the start of the last iteration means that that all paths to the destination are multiples of the cycle length, so finding steps is just a matter of finding the least common multiple.
     fn count_steps_multistart(&self) -> u128 {
         let moves_per_iter = self.turns.len() as u128;
         let mut cycles = self.find_all_cycles();

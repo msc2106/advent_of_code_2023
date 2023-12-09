@@ -9,6 +9,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 fn main() {
     let mut args = env::args();
@@ -31,6 +32,18 @@ fn main() {
             "7-2" => day7::part2("./input/day7.txt"),
             "8-1" => day8::part1("./input/day8.txt"),
             "8-2" => day8::part2("./input/day8.txt"),
+            "9-1" => day9::part1("./input/day9.txt"),
+            "9-2" => day9::part2("./input/day9.txt"),
+            // "4-1" => day4::part1("./input/day4.txt"),
+            // "4-2" => day4::part2("./input/day4.txt"),
+            // "5-1" => day5::part1("./input/day5.txt"),
+            // "5-2" => day5::part2("./input/day5.txt"),
+            // "6-1" => day6::part1("./input/day6.txt"),
+            // "6-2" => day6::part2("./input/day6.txt"),
+            // "7-1" => day7::part1("./input/day7.txt"),
+            // "7-2" => day7::part2("./input/day7.txt"),
+            // "8-1" => day8::part1("./input/day8.txt"),
+            // "8-2" => day8::part2("./input/day8.txt"),
             _ => String::from("Problem not implemented")
         }
     } else {
