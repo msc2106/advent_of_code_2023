@@ -1,5 +1,5 @@
 use crate::utilities;
-use std::collections::HashMap;
+// use std::collections::HashMap;
 
 #[cfg(test)]
 mod testing {
@@ -21,14 +21,14 @@ mod testing {
         assert_eq!(total, 136);
     }
 
-    #[test]
-    fn part2_test2() {
-        let lines = utilities::string_iterator("./input/day14_test1.txt");
-        let mut platform = PlatformFull::read(lines);
-        platform.cycle(3);
-        let answer = ".....#....\n....#...O#\n.....##...\n..O#......\n.....OOO#.\n.O#...O#.#\n....O#...O\n.......OOO\n#...O###.O\n#.OOO#...O\n";
-        assert_eq!(answer, platform.as_string());
-    }
+    // #[test]
+    // fn part2_test2() {
+    //     let lines = utilities::string_iterator("./input/day14_test1.txt");
+    //     let mut platform = PlatformFull::read(lines);
+    //     platform.cycle(3);
+    //     let answer = ".....#....\n....#...O#\n.....##...\n..O#......\n.....OOO#.\n.O#...O#.#\n....O#...O\n.......OOO\n#...O###.O\n#.OOO#...O\n";
+    //     assert_eq!(answer, platform.as_string());
+    // }
 
     #[test]
     fn part2_test3() {
@@ -220,31 +220,31 @@ impl PlatformFull {
         self.array.iter().enumerate().filter(|(_, e)| e.is_roller()).map(|(i, _)| i).collect()
     }
 
-    fn memo_string(&self) -> String {
-        let mut output = String::new();
+    // fn memo_string(&self) -> String {
+    //     let mut output = String::new();
 
-        for index in self.roller_indices() {
-            output.push_str(&format!("{index},"));
-        }
+    //     for index in self.roller_indices() {
+    //         output.push_str(&format!("{index},"));
+    //     }
 
-        output
-    }
+    //     output
+    // }
 
-    fn update_from_memo(& mut self, memo_string: &str) {
-        let new_indices: Vec<usize> = memo_string
-            .split(',')
-            .filter_map(| s | {
-                s.parse::<usize>().ok()
-            }).collect();
+    // fn update_from_memo(& mut self, memo_string: &str) {
+    //     let new_indices: Vec<usize> = memo_string
+    //         .split(',')
+    //         .filter_map(| s | {
+    //             s.parse::<usize>().ok()
+    //         }).collect();
         
-        for (i, entry) in self.array.iter_mut().enumerate() {
-            if new_indices.contains(&i) {
-                *entry = Element::Roller;
-            } else if entry.is_roller() {
-                *entry = Element::Empty;
-            }
-        }
-    }
+    //     for (i, entry) in self.array.iter_mut().enumerate() {
+    //         if new_indices.contains(&i) {
+    //             *entry = Element::Roller;
+    //         } else if entry.is_roller() {
+    //             *entry = Element::Empty;
+    //         }
+    //     }
+    // }
 
     fn load_after_cycles(&self, times:usize) -> usize {
         let mut history: Vec<Vec<usize>> = Vec::new();
@@ -266,39 +266,39 @@ impl PlatformFull {
         looping_sequence[remainder]
     }
 
-    fn cycle(&mut self, times: usize) {
-        println!("start");   
-        let mut checkpoint: usize = 1000;
-        let mut memo: HashMap<String, String> = HashMap::new();
-        let mut i: usize = 0;
+    // fn cycle(&mut self, times: usize) {
+    //     println!("start");   
+    //     let mut checkpoint: usize = 1000;
+    //     let mut memo: HashMap<String, String> = HashMap::new();
+    //     let mut i: usize = 0;
 
-        while i < times {
-            let mut start = self.memo_string();
-            while let Some(end) = memo.get(&start) {
-                if i == times - 1 {
-                    break;
-                }
-                start = end.clone();
-                i += 1;
-                if i >= checkpoint {
-                    println!("{}", i);
-                    checkpoint *= 10;
-                }
-            }
-            self.update_from_memo(&start);
-            self.roll_up();
-            self.roll_left();
-            self.roll_down();
-            self.roll_right();
-            let end = self.memo_string();
-            memo.insert(start, end);
-            i += 1;
-            if i >= checkpoint {
-                println!("{}: {}", i, self.calculate_load());
-                checkpoint *= 10;
-            }
-        }
-    }
+    //     while i < times {
+    //         let mut start = self.memo_string();
+    //         while let Some(end) = memo.get(&start) {
+    //             if i == times - 1 {
+    //                 break;
+    //             }
+    //             start = end.clone();
+    //             i += 1;
+    //             if i >= checkpoint {
+    //                 println!("{}", i);
+    //                 checkpoint *= 10;
+    //             }
+    //         }
+    //         self.update_from_memo(&start);
+    //         self.roll_up();
+    //         self.roll_left();
+    //         self.roll_down();
+    //         self.roll_right();
+    //         let end = self.memo_string();
+    //         memo.insert(start, end);
+    //         i += 1;
+    //         if i >= checkpoint {
+    //             println!("{}: {}", i, self.calculate_load());
+    //             checkpoint *= 10;
+    //         }
+    //     }
+    // }
 
     fn calculate_load(&self) -> usize {
         self.array
@@ -313,27 +313,27 @@ impl PlatformFull {
             )
     }
 
-    fn as_string(&self) -> String {
-        let mut output = String::new();
+    // fn as_string(&self) -> String {
+    //     let mut output = String::new();
 
-        for (i, element) in self.array.iter().enumerate() {
-            output.push (
-                if element.is_roller() {
-                    'O'
-                } else if element.is_empty() {
-                    '.'
-                } else {
-                    '#'
-                }
-            );
-            if (i+1) % self.ncols == 0 {
-                // println!("{line}");
-                output.push('\n');
-            }
-        }
+    //     for (i, element) in self.array.iter().enumerate() {
+    //         output.push (
+    //             if element.is_roller() {
+    //                 'O'
+    //             } else if element.is_empty() {
+    //                 '.'
+    //             } else {
+    //                 '#'
+    //             }
+    //         );
+    //         if (i+1) % self.ncols == 0 {
+    //             // println!("{line}");
+    //             output.push('\n');
+    //         }
+    //     }
 
-        output
-    }
+    //     output
+    // }
 }
 
 #[derive(Clone, Copy)]
