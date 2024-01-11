@@ -1,10 +1,24 @@
 use crate::utilities;
-use std::{ops::Range, collections::HashMap};
+use std::ops::Range;
+// use std::collections:HashMap;
+
+#[cfg(test)]
+mod testing {
+    use super::*;
+
+    #[test]
+    fn part1_test1() {
+        let lines = utilities::string_iterator("./input/day21_test1.txt");
+        let stepper = Stepper::read(lines);
+        let total = stepper.count_destinations(6);
+        assert_eq!(total, 16);
+    }
+}
 
 pub fn part1(path: &str) -> String {
     let lines = utilities::string_iterator(path);
     let stepper = Stepper::read(lines);
-    let total = stepper.count_destinations();
+    let total = stepper.count_destinations(64);
     format!("He can reach {total} garden plots")
 }
 
@@ -16,33 +30,15 @@ struct Stepper {
 impl Stepper {
     fn read(mut lines: impl Iterator<Item = String>) -> Self {
         let first_line = lines.next().unwrap();
-        let find_start = | cloned_line: String | {
-            cloned_line
-                .chars()
-                .enumerate()
-                .find_map(
-                    | (i, ch) | {
-                        if ch == 'S' {
-                            Some(i)
-                        } else {
-                            None
-                        }
-                    }
-                )
-        };
-        let mut start = find_start(first_line.clone());
             
         let first_row = first_line.chars().map(| ch | Square::read(ch));
         let mut square_types = Chart::new(first_row);
         for line in lines {
-            if start.is_none() {
-                start = find_start(line.clone());
-            }
             let new_row = line.chars().map(| ch | Square::read(ch));
             square_types.append_row(new_row);
         }
 
-        let start = start.unwrap();
+        let start = square_types.find_with(| square | square.is_start());
 
         let adjacency: Vec<Vec<usize>> = square_types
             .range()
@@ -55,35 +51,68 @@ impl Stepper {
                 }
             )
             .collect();
-        println!("{adjacency:?}");
+        // println!("{adjacency:?}");
 
         Self {adjacency, start}
     }
 
-    fn count_destinations(&self) -> u64 {
-        let mut memo: HashMap<usize, [Option<u64>;64]> = HashMap::new();
-        
-        self.walk_recur(self.start, 0, &mut memo)
+    fn count_destinations(&self, max_steps: usize) -> usize {
+        let mut visited_even: Vec<bool> = vec![false; self.adjacency.len()];
+        let mut visited_odd: Vec<bool> = vec![false; self.adjacency.len()];
+        let mut priority: Vec<usize> = vec![max_steps; self.adjacency.len()];
+        priority[self.start] = 0;
+        let min_priority = | priority_vec: &Vec<usize> | {
+            let (index, val) = priority_vec
+                .iter()
+                .enumerate()
+                .min_by_key(| (_, priority) | **priority)
+                .unwrap();
+            if *val < max_steps {
+                Some((index, *val))
+            } else {
+                None
+            }
+        };
+        visited_even[self.start] = true;
+        while let Some((index, steps_taken)) = min_priority(&priority) {
+            // println!("{index}: {steps_taken}");
+            priority[index] = max_steps;
+            let neighbors = &self.adjacency[index];
+            let next_step_is_even = (steps_taken+1) % 2 == 0;
+            for neighbor in neighbors.iter().map(|index| *index) {
+                if !visited_even[neighbor] && !visited_odd[neighbor] {
+                    priority[neighbor] = priority[neighbor].min(steps_taken + 1);
+                    if next_step_is_even {
+                        visited_even[neighbor] = true;
+                    } else {
+                        visited_odd[neighbor] = true;
+                    }
+                }
+            }
+        }
+        // println!("Even: {visited_even:?}");
+        // println!("Odd: {visited_odd:?}");
+        visited_even.into_iter().filter(| visited | *visited).count()
     }
 
-    fn walk_recur(&self, position: usize, step_number: usize, memo: &mut HashMap<usize, [Option<u64>;64]>) -> u64 {
-        // println!("{memo:?}");
-        if step_number == 64 {
-            return 1;
-        }
-        if !memo.contains_key(&position) {
-            memo.insert(position, [None; 64]);
-        }
-        if let Some(count) = memo[&position][step_number] {
-            return count;
-        }
-        let neighbors = &self.adjacency[position];
-        let count = neighbors.iter()
-            .map(| neighbor | self.walk_recur(*neighbor, step_number+1, memo))
-            .sum();
-        memo.get_mut(&position).unwrap()[step_number] = Some(count);
-        count
-    }
+    // fn walk_recur(&self, position: usize, step_number: usize, memo: &mut HashMap<usize, [Option<u64>;64]>) -> u64 {
+    //     // println!("{memo:?}");
+    //     if step_number == 64 {
+    //         return 1;
+    //     }
+    //     if !memo.contains_key(&position) {
+    //         memo.insert(position, [None; 64]);
+    //     }
+    //     if let Some(count) = memo[&position][step_number] {
+    //         return count;
+    //     }
+    //     let neighbors = &self.adjacency[position];
+    //     let count = neighbors.iter()
+    //         .map(| neighbor | self.walk_recur(*neighbor, step_number+1, memo))
+    //         .sum();
+    //     memo.get_mut(&position).unwrap()[step_number] = Some(count);
+    //     count
+    // }
 }
 
 struct Chart<T> {
@@ -135,17 +164,27 @@ impl <T> Chart<T> {
             )
             .collect()
     }
+
+    fn find_with(&self, test: impl Fn(&T) -> bool) -> usize {
+        self.entries
+            .iter()
+            .position(test)
+            .unwrap()
+    }
 }
 
 enum Square {
     Plot,
-    Rock
+    Rock,
+    Start
 }
 
 impl Square {
     fn read(ch: char) -> Self {
         if ch == '#' {
             Self::Rock
+        } else if ch == 'S' {
+            Self::Start
         } else {
             Self::Plot
         }
@@ -153,8 +192,15 @@ impl Square {
 
     fn is_plot(&self) -> bool {
         match self {
-            Self::Plot => true,
+            Self::Plot | Self::Start => true,
             Self::Rock => false
+        }
+    }
+
+    fn is_start(&self) -> bool {
+        match self {
+            Self::Start => true,
+            _ => false
         }
     }
 }
